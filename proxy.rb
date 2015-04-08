@@ -58,6 +58,11 @@ MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
 MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
 
+get '/test' do
+  headers 'Content-Type' => 'application/json'
+  return request.env.to_json
+end
+
 get '/*' do
   unless request.headers['Authorization']
     status 400
