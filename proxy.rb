@@ -99,7 +99,7 @@ get '/*' do
 
   res = Faraday.get do |req|
     req.headers['Authorization'] = "Bearer #{token}"
-    req.url = "#{API}#{request.path}"
+    req.url "#{API}#{request.path}"
     req.params = params.clone
   end
 
