@@ -59,7 +59,7 @@ MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
 
 get '/*' do
-  unless headers['Authorization']
+  unless request.headers['Authorization']
     status 400
     headers 'Content-Type' => 'application/json'
     return {:error => MISSING_AUTHORIZATION,
@@ -67,14 +67,14 @@ get '/*' do
   end
 
   params = {}
-  headers['Authorization'].split.each do |param|
+  request.headers['Authorization'].split.each do |param|
     parts = param.split('=')
     params[parts[0]] = parts[1]
   end
 
   unless params['token'] and params['iv']
     status 400
-    headers 'Content-Type' => 'application/json'
+    request.headers 'Content-Type' => 'application/json'
     return {:error => MISSING_PARAMS,
             :format => FORMAT}.to_json
   end
@@ -86,7 +86,7 @@ get '/*' do
   token = aes.update(Base64.decode64(params['token'])) + aes.final
 
   res = Faraday.get do |req|
-    req.headers = headers.clone
+    req.headers = request.headers.clone
     req.headers['Authorization'] = "Bearer #{token}"
     req.url = "#{API}#{request.path}"
     req.params = params.clone
