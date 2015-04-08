@@ -18,9 +18,24 @@ APIs than you only need to add in your `CLIENT_ID`, `CLIENT_SECRET` and
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
+## How it Works
+
+This proxy will help log in users using a standard OAuth2 Authorization Code
+flow and then redirect them back to your app with an encrypted access token in
+the URL fragment.
+
+Now your app can pass that fragment as the `Authorization` header in other
+requests to this proxy. These requests will be sent to the proxied API with a
+proper OAuth2 `Authorization: Bearer` token header. This allows you to use the
+authorization code flow for front end only apps while keeping your
+`CLIENT_SECRET` safe.
+
 ## Steps
 
-### US Battle.net API
+### US Battle.net API proxy hosted on Heroku
+
+If you want to run this proxy on Heroku for the US Battle.net API than these are
+the steps you need to follow:
 
 1. Register on https://dev.battle.net and generate an account. You can leave the
    `Register Callback URL` field blank for now.
