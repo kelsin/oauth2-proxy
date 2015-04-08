@@ -38,7 +38,7 @@ key = digest.digest
 
 get '/auth/:name/callback' do
   iv = OpenSSL::Cipher::Cipher.new(alg).random_iv
-  iv64 = Base64.encode64(iv)
+  iv64 = Base64.urlsafe_encode64(iv)
 
   aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.encrypt
@@ -47,7 +47,7 @@ get '/auth/:name/callback' do
 
   # Now we go ahead and encrypt our plain text.
   token = aes.update(request.env['omniauth.auth']['credentials']['token']) + aes.final
-  token64 = Base64.encode64(token)
+  token64 = Base64.urlsafe_encode64(token)
 
   query = { :token => token64,
             :iv => iv64,
@@ -84,8 +84,8 @@ get '/*' do
   aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.decrypt
   aes.key = key
-  aes.iv = Base64.decode64(auth_params['iv'])
-  token = aes.update(Base64.decode64(auth_params['token'])) + aes.final
+  aes.iv = Base64.urlsafe_decode64(auth_params['iv'])
+  token = aes.update(Base64.urlsafe_decode64(auth_params['token'])) + aes.final
 
   res = Faraday.get do |req|
     req.headers['Authorization'] = "Bearer #{token}"
