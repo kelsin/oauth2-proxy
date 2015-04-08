@@ -16,10 +16,11 @@ REDIRECT_URL = ENV['REDIRECT_URL']
 AUTHORIZE_URL = ENV['AUTHORIZE_URL']
 TOKEN_URL = ENV['TOKEN_URL']
 SCOPE = ENV['SCOPE']
-KEY = ENV['KEY']
+SECRET = ENV['SECRET']
+COOKIE_SECRET = ENV['COOKIE_SECRET']
 
 use Rack::SSL
-use Rack::Session::Cookie
+use Rack::Session::Cookie, :secret => COOKIE_SECRET
 use OmniAuth::Builder do
   provider :oauth2, CLIENT_ID, CLIENT_SECRET, :client_options => {
              :authorize_url => AUTHORIZE_URL,
@@ -32,7 +33,7 @@ alg = "AES-256-CBC"
 
 # Generate key via SHA256
 digest = Digest::SHA256.new
-digest.update(KEY)
+digest.update(SECRET)
 key = digest.digest
 
 get '/auth/:name/callback' do
