@@ -18,7 +18,32 @@ APIs than you only need to add in your `CLIENT_ID`, `CLIENT_SECRET` and
 
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
+## Steps
+
+### US Battle.net API
+
+1. Register on https://dev.battle.net and generate an account. You can leave the
+   `Register Callback URL` field blank for now.
+2. Click the Heroku deploy button above and fill in your `CLIENT_ID` and
+   `CLIENT_SECRET` with the data from your https://dev.battle.net account (Key
+   and Secret). Put your front end app's url as the `REDIRECT_URL`. Whatever url
+   you put here will have `#token=<token>&iv=<iv>` appended to it after login.
+3. Make note of your heroku app url and add it to your https://dev.battle.net
+   account as the `Register Callback URL` with `/auth/oauth2/callback` as the
+   path. For example, if your heroku app is named `sample-app` then the callback
+   url shoudl be `https://sample-app.herokuapp.com/auth/oauth2/callback`.
+4. When you want your users to login to the Battle.net API redirect them to
+`<your herouku app>/auth/oauth2`.
+5. When we redirect the user back to your app save the token and iv values.
+6. When you need to make an API call make it to `<your heroku
+   app>/rest/of/the/api/call` and include an `Authorization` header in the form
+   of `Authorization: token=<token> iv=<iv>`
+
 ## Configuration Variables
+
+These are the configuration variables that this proxy needs to run. If you want
+to use the US Battle.net API and use the Heroku deploy button above, you only
+need to setup the **BOLDED** ones.
 
 Variable | Description | Battle.net API Default
 -------|----------|-----------------
