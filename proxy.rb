@@ -5,6 +5,7 @@ require 'rack/ssl'
 require 'json'
 require 'digest/sha2'
 require 'openssl'
+require 'base64'
 require 'rack'
 
 # These variables should all be set in your environment
@@ -36,6 +37,7 @@ key = digest.digest
 
 get '/auth/:name/callback' do
   iv = OpenSSL::Cipher::Cipher.new(alg).random_iv
+  iv64 = Base64.encode64(iv)
 
   aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.encrypt
@@ -44,10 +46,10 @@ get '/auth/:name/callback' do
 
   # Now we go ahead and encrypt our plain text.
   token = aes.update(request.env['omniauth.auth']['credentials']['token']) + aes.final
-  token64 = [token].pack('m')
+  token64 = Base64.encode64(token)
 
   query = { :token => token64,
-            :iv => iv,
+            :iv => iv64,
             :expires_at => request.env['omniauth.auth']['credentials']['expires_at'] }
   redirect "#{REDIRECT_URL}##{Rack::Utils.build_query(query)}"
 end
@@ -79,8 +81,8 @@ get '/*' do
   aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.decrypt
   aes.key = key
-  aes.iv = params['iv']
-  token = aes.update(params['token'].unpack('m')[0]) + aes.final
+  aes.iv = Base64.decode64(params['iv'])
+  token = aes.update(Base64.decode64(params['token'])) + aes.final
 
   res = Faraday.get do |req|
     req.headers = headers.clone
