@@ -14,25 +14,28 @@
       "value": "https://us.api.battle.net"
     },
     "CLIENT_ID": {
-      "description": "Your client_id"
+      "description": "Your client_id",
+      "value": "CLIENT_ID"
     },
     "CLIENT_SECRET": {
-      "description": "Your client_secret"
+      "description": "Your client_secret",
+      "value": "CLIENT_SECRET"
     },
     "REDIRECT_URL": {
-      "description": "Where the proxy should redirect a user to after login"
+      "description": "Where the proxy should redirect a user to after login",
+      "value": "REDIRECT_URL"
     },
     "AUTHORIZE_URL": {
       "description": "The OAuth2 server's authorization url",
-      "value": "https://us.battle.net/oauth/authorize",
+      "value": "https://us.battle.net/oauth/authorize"
     },
     "TOKEN_URL": {
       "description": "The OAuth2 server's token url",
-      "value": "https://us.battle.net/oauth/token",
+      "value": "https://us.battle.net/oauth/token"
     },
     "SCOPE": {
       "description": "The scopes to request with every login",
-      "value": "wow.profile sc2.profile",
+      "value": "wow.profile sc2.profile"
     },
     "SECRET": {
       "description": "A secret key for encrypting and decrypting access tokens.",
