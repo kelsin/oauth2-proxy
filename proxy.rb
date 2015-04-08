@@ -59,11 +59,6 @@ MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
 MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
 
-get '/params' do
-  headers 'Content-Type' => 'application/json'
-  return params.to_json
-end
-
 get '/*' do
   authorization = request.env['HTTP_AUTHORIZATION']
   unless authorization
@@ -73,13 +68,13 @@ get '/*' do
             :format => FORMAT}.to_json
   end
 
-  params = {}
+  auth_params = {}
   authorization.split.each do |param|
     parts = param.split('=', 2)
-    params[parts[0]] = parts[1]
+    auth_params[parts[0]] = parts[1]
   end
 
-  unless params['token'] and params['iv']
+  unless auth_params['token'] and auth_params['iv']
     status 400
     request.headers 'Content-Type' => 'application/json'
     return {:error => MISSING_PARAMS,
@@ -89,8 +84,8 @@ get '/*' do
   aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.decrypt
   aes.key = key
-  aes.iv = Base64.decode64(params['iv'])
-  token = aes.update(Base64.decode64(params['token'])) + aes.final
+  aes.iv = Base64.decode64(auth_params['iv'])
+  token = aes.update(Base64.decode64(auth_params['token'])) + aes.final
 
   res = Faraday.get do |req|
     req.headers['Authorization'] = "Bearer #{token}"
