@@ -27,6 +27,8 @@ GEM
     rack (1.6.0)
     rack-protection (1.5.3)
       rack
+    rack-ssl (1.4.1)
+      rack
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -40,4 +42,5 @@ DEPENDENCIES
   faraday
   omniauth-oauth2
   puma
+  rack-ssl
   sinatra
