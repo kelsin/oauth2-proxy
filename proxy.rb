@@ -2,7 +2,7 @@ require 'sinatra'
 require 'omniauth'
 require 'omniauth-oauth2'
 require 'rack/ssl'
-require 'pp'
+require 'json'
 
 # These variables should all be set in your environment
 CLIENT_ID = ENV['CLIENT_ID']
@@ -22,7 +22,8 @@ use OmniAuth::Builder do
 end
 
 get '/auth/:name/callback' do
-  pp request.env['omniauth.auth']
+  headers 'Content-Type' => 'application/json'
+  request.env['omniauth.auth'].to_json
 end
 
 get '/*' do
