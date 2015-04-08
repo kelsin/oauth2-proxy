@@ -29,20 +29,20 @@ use OmniAuth::Builder do
 end
 
 # Encryption Algorithm
-alg = "AES-256-CBC"
+$alg = "AES-256-CBC"
 
 # Generate key via SHA256
 digest = Digest::SHA256.new
 digest.update(SECRET)
-key = digest.digest
+$key = digest.digest
 
 def encrypt(str)
-  aes = OpenSSL::Cipher::Cipher.new(alg)
+  aes = OpenSSL::Cipher::Cipher.new($alg)
   iv = aes.random_iv
   iv64 = Base64.urlsafe_encode64(iv)
 
   aes.encrypt
-  aes.key = key
+  aes.key = $key
   aes.iv = iv
 
   cipher = aes.update(str) + aes.final
@@ -52,9 +52,9 @@ def encrypt(str)
 end
 
 def decrypt(bin64, iv64)
-  aes = OpenSSL::Cipher::Cipher.new(alg)
+  aes = OpenSSL::Cipher::Cipher.new($alg)
   aes.decrypt
-  aes.key = key
+  aes.key = $key
   aes.iv = Base64.urlsafe_decode64(iv)
   aes.update(Base64.urlsafe_decode64(bin64)) + aes.final
 end
