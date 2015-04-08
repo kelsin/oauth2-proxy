@@ -24,8 +24,8 @@ use Rack::Session::Cookie, :secret => COOKIE_SECRET
 use OmniAuth::Builder do
   provider :oauth2, CLIENT_ID, CLIENT_SECRET, :client_options => {
              :authorize_url => AUTHORIZE_URL,
-             :token_url => TOKEN_URL,
-             :scope => SCOPE }
+             :token_url => TOKEN_URL },
+           :scope => SCOPE
 end
 
 # Encryption Algorithm
