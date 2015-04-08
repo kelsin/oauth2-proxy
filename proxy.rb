@@ -86,8 +86,8 @@ helpers do
   def error(msg)
     status 400
     headers 'Content-Type' => 'application/json'
-    body {:error => msg,
-            :format => FORMAT}.to_json
+    body({ :error => msg,
+           :format => FORMAT }.to_json)
   end
 end
 
