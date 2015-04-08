@@ -1,0 +1,46 @@
+{
+  "name": "OAuth2 Proxy",
+  "description": "A tiny heroku-ready oauth2 request proxy",
+  "keywords": [
+    "oauth2",
+    "oauth",
+    "proxy"
+  ],
+  "website": "https://github.com/kelsin/oauth2-proxy",
+  "repository": "https://github.com/kelsin/oauth2-proxy",
+  "env": {
+    "API": {
+      "description": "The base API url to proxy to",
+      "value": "https://us.api.battle.net"
+    },
+    "CLIENT_ID": {
+      "description": "Your client_id"
+    },
+    "CLIENT_SECRET": {
+      "description": "Your client_secret"
+    },
+    "REDIRECT_URL": {
+      "description": "Where the proxy should redirect a user to after login"
+    },
+    "AUTHORIZE_URL": {
+      "description": "The OAuth2 server's authorization url",
+      "value": "https://us.battle.net/oauth/authorize",
+    },
+    "TOKEN_URL": {
+      "description": "The OAuth2 server's token url",
+      "value": "https://us.battle.net/oauth/token",
+    },
+    "SCOPE": {
+      "description": "The scopes to request with every login",
+      "value": "wow.profile sc2.profile",
+    },
+    "SECRET": {
+      "description": "A secret key for encrypting and decrypting access tokens.",
+      "generator": "secret"
+    },
+    "COOKIE_SECRET": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret"
+    }
+  }
+}
