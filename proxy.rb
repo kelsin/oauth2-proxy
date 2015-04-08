@@ -19,8 +19,13 @@ SCOPE = ENV['SCOPE']
 SECRET = ENV['SECRET']
 COOKIE_SECRET = ENV['COOKIE_SECRET']
 
+# This sets up SSL redirection
 use Rack::SSL
+
+# Sessions are required for OmniAuth to work
 use Rack::Session::Cookie, :secret => COOKIE_SECRET
+
+# This sets up OmniAuth with our OAuth environment variables
 use OmniAuth::Builder do
   provider :oauth2, CLIENT_ID, CLIENT_SECRET, :client_options => {
              :authorize_url => AUTHORIZE_URL,
@@ -31,11 +36,13 @@ end
 # Encryption Algorithm
 $alg = "AES-256-CBC"
 
-# Generate key via SHA256
+# Generate key via SHA256 from ENV['SECRET']
 digest = Digest::SHA256.new
 digest.update(SECRET)
 $key = digest.digest
 
+# Encrypt a string using a key derived from ENV['SECRET'] and return both the
+# cipher text and a iv
 def encrypt(str)
   aes = OpenSSL::Cipher::Cipher.new($alg)
   iv = aes.random_iv
@@ -51,6 +58,7 @@ def encrypt(str)
     :iv => iv64 }
 end
 
+# Decrypt some data given an iv using a key derived from ENV['SECRET']
 def decrypt(bin64, iv64)
   aes = OpenSSL::Cipher::Cipher.new($alg)
   aes.decrypt
@@ -59,10 +67,14 @@ def decrypt(bin64, iv64)
   aes.update(Base64.urlsafe_decode64(bin64)) + aes.final
 end
 
+# Strings used in error cases
 MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
 MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
 
+# The oauth2 callback, when we get this callback we should encrypt the token and
+# redirect to ENV['REDIRECT_URL'] with our encrypted data attached in the URL
+# fragment.
 get '/auth/:name/callback' do
   encrypted = encrypt(request.env['omniauth.auth']['credentials']['token'])
 
@@ -73,6 +85,9 @@ get '/auth/:name/callback' do
   redirect "#{REDIRECT_URL}##{Rack::Utils.build_query(query)}"
 end
 
+# All other requests should be forwarded to ENV['API'] with a proper oauth2
+# header. All query paramters are forwarded as well. All headers are returned as
+# they were from the API response.
 get '/*' do
   authorization = request.env['HTTP_AUTHORIZATION']
   unless authorization
