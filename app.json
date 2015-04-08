@@ -14,16 +14,13 @@
       "value": "https://us.api.battle.net"
     },
     "CLIENT_ID": {
-      "description": "Your client_id",
-      "value": "CLIENT_ID"
+      "description": "Your client_id"
     },
     "CLIENT_SECRET": {
-      "description": "Your client_secret",
-      "value": "CLIENT_SECRET"
+      "description": "Your client_secret"
     },
     "REDIRECT_URL": {
-      "description": "Where the proxy should redirect a user to after login",
-      "value": "REDIRECT_URL"
+      "description": "Where the proxy should redirect a user to after login"
     },
     "AUTHORIZE_URL": {
       "description": "The OAuth2 server's authorization url",
