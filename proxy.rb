@@ -70,7 +70,8 @@ get '/headers' do
 end
 
 get '/*' do
-  unless request.headers['Authorization']
+  authorization = request.env['HTTP_AUTHORIZATION']
+  unless authorization
     status 400
     headers 'Content-Type' => 'application/json'
     return {:error => MISSING_AUTHORIZATION,
@@ -78,8 +79,8 @@ get '/*' do
   end
 
   params = {}
-  request.headers['Authorization'].split.each do |param|
-    parts = param.split('=')
+  authorization.split.each do |param|
+    parts = param.split('=', 2)
     params[parts[0]] = parts[1]
   end
 
@@ -97,7 +98,6 @@ get '/*' do
   token = aes.update(Base64.decode64(params['token'])) + aes.final
 
   res = Faraday.get do |req|
-    req.headers = request.headers.clone
     req.headers['Authorization'] = "Bearer #{token}"
     req.url = "#{API}#{request.path}"
     req.params = params.clone
