@@ -55,6 +55,7 @@ get '/auth/:name/callback' do
 end
 
 MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
+MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
 
 get '/*' do
@@ -74,7 +75,7 @@ get '/*' do
   unless params['token'] and params['iv']
     status 400
     headers 'Content-Type' => 'application/json'
-    return {:error => MISSING_AUTHORIZATION,
+    return {:error => MISSING_PARAMS,
             :format => FORMAT}.to_json
   end
 
