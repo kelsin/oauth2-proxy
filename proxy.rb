@@ -36,28 +36,42 @@ digest = Digest::SHA256.new
 digest.update(SECRET)
 key = digest.digest
 
-get '/auth/:name/callback' do
-  iv = OpenSSL::Cipher::Cipher.new(alg).random_iv
+def encrypt(str)
+  aes = OpenSSL::Cipher::Cipher.new(alg)
+  iv = aes.random_iv
   iv64 = Base64.urlsafe_encode64(iv)
 
-  aes = OpenSSL::Cipher::Cipher.new(alg)
   aes.encrypt
   aes.key = key
   aes.iv = iv
 
-  # Now we go ahead and encrypt our plain text.
-  token = aes.update(request.env['omniauth.auth']['credentials']['token']) + aes.final
-  token64 = Base64.urlsafe_encode64(token)
+  cipher = aes.update(str) + aes.final
 
-  query = { :token => token64,
-            :iv => iv64,
-            :expires_at => request.env['omniauth.auth']['credentials']['expires_at'] }
-  redirect "#{REDIRECT_URL}##{Rack::Utils.build_query(query)}"
+  { :cipher => Base64.urlsafe_encode64(cipher),
+    :iv => iv64 }
+end
+
+def decrypt(bin64, iv64)
+  aes = OpenSSL::Cipher::Cipher.new(alg)
+  aes.decrypt
+  aes.key = key
+  aes.iv = Base64.urlsafe_decode64(iv)
+  aes.update(Base64.urlsafe_decode64(bin64)) + aes.final
 end
 
 MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
 MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
+
+get '/auth/:name/callback' do
+  encrypted = encrypt(request.env['omniauth.auth']['credentials']['token'])
+
+  query = { :token => encrypted[:cipher],
+            :iv => encrypted[:iv],
+            :expires_at => request.env['omniauth.auth']['credentials']['expires_at'] }
+
+  redirect "#{REDIRECT_URL}##{Rack::Utils.build_query(query)}"
+end
 
 get '/*' do
   authorization = request.env['HTTP_AUTHORIZATION']
@@ -81,11 +95,7 @@ get '/*' do
             :format => FORMAT}.to_json
   end
 
-  aes = OpenSSL::Cipher::Cipher.new(alg)
-  aes.decrypt
-  aes.key = key
-  aes.iv = Base64.urlsafe_decode64(auth_params['iv'])
-  token = aes.update(Base64.urlsafe_decode64(auth_params['token'])) + aes.final
+  token = decrypt(auth_params['token'], auth_params['iv'])
 
   res = Faraday.get do |req|
     req.headers['Authorization'] = "Bearer #{token}"
