@@ -67,10 +67,29 @@ def decrypt(bin64, iv64)
   aes.update(Base64.urlsafe_decode64(bin64)) + aes.final
 end
 
+# Parses the Authorization header into a hash from name=value pairs
+def parse(authorization)
+  auth_params = {}
+  authorization.split.each do |param|
+    parts = param.split('=', 2)
+    auth_params[parts[0]] = parts[1]
+  end
+  auth_params
+end
+
 # Strings used in error cases
 MISSING_AUTHORIZATION = 'Must provide Authorization header with encrypted token'
 MISSING_PARAMS = 'Must provide both parameters in the Authorization header'
 FORMAT = 'Authorization: token=<token> iv=<iv>'
+
+helpers do
+  def error(msg)
+    status 400
+    headers 'Content-Type' => 'application/json'
+    body {:error => msg,
+            :format => FORMAT}.to_json
+  end
+end
 
 # The oauth2 callback, when we get this callback we should encrypt the token and
 # redirect to ENV['REDIRECT_URL'] with our encrypted data attached in the URL
@@ -90,26 +109,9 @@ end
 # they were from the API response.
 get '/*' do
   authorization = request.env['HTTP_AUTHORIZATION']
-  unless authorization
-    status 400
-    headers 'Content-Type' => 'application/json'
-    return {:error => MISSING_AUTHORIZATION,
-            :format => FORMAT}.to_json
-  end
-
-  auth_params = {}
-  authorization.split.each do |param|
-    parts = param.split('=', 2)
-    auth_params[parts[0]] = parts[1]
-  end
-
-  unless auth_params['token'] and auth_params['iv']
-    status 400
-    request.headers 'Content-Type' => 'application/json'
-    return {:error => MISSING_PARAMS,
-            :format => FORMAT}.to_json
-  end
-
+  error(MISSING_AUTHORIZATION) && return unless authorization
+  auth_params = parse(authorization)
+  error(MISSING_PARAMS) && return unless auth_params['token'] && auth_params['iv']
   token = decrypt(auth_params['token'], auth_params['iv'])
 
   res = Faraday.get do |req|
