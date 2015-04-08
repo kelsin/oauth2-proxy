@@ -20,7 +20,7 @@ use OmniAuth::Builder do
              :scope => SCOPE }
 end
 
-post '/auth/:name/callback' do
+get '/auth/:name/callback' do
   request.env['omniauth.auth'].inspect
 end
 
