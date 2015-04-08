@@ -55,7 +55,7 @@ def decrypt(bin64, iv64)
   aes = OpenSSL::Cipher::Cipher.new($alg)
   aes.decrypt
   aes.key = $key
-  aes.iv = Base64.urlsafe_decode64(iv)
+  aes.iv = Base64.urlsafe_decode64(iv64)
   aes.update(Base64.urlsafe_decode64(bin64)) + aes.final
 end
 
