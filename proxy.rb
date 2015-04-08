@@ -63,6 +63,12 @@ get '/test' do
   return request.env.to_json
 end
 
+get '/headers' do
+  output = headers.to_json
+  headers 'Content-Type' => 'application/json'
+  return output
+end
+
 get '/*' do
   unless request.headers['Authorization']
     status 400
